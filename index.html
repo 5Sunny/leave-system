@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบวันลาราชการไทย</title>
+<style>
+:root{
+  --sage:#e8f0ea;--sage-mid:#b8d4bc;--sage-deep:#4a7c59;
+  --blush:#fdf0f0;--blush-mid:#f0c8c8;--blush-deep:#c05858;
+  --cream:#fdf8f2;--warm:#f7f0e8;--warm-mid:#e0d4c4;
+  --lav:#f2f0fa;--lav-mid:#c8c0e8;--lav-deep:#6c60b0;
+  --amb:#fef7e8;--amb-mid:#f0d89c;--amb-deep:#a07820;
+  --grn:#eef7ee;--grn-mid:#b0d8b0;--grn-deep:#3a7c3a;
+  --txt:#3a3530;--txt-mid:#6e665c;--txt-light:#a09888;
+  --bd:#e8e0d4;--bd-soft:#f0ebe4;--r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Sarabun,Tahoma,sans-serif}
+body{background:var(--cream);color:var(--txt)}
+
+/* ---------- LOGIN SCREEN ---------- */
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,var(--cream),var(--sage) 140%)}
+.login-box{background:#fff;border-radius:20px;border:1px solid var(--bd-soft);padding:40px 36px;width:360px;max-width:90vw;box-shadow:0 8px 32px rgba(74,124,89,.12)}
+.login-logo{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:28px}
+.login-logo .icon{width:52px;height:52px;border-radius:16px;background:var(--sage);display:flex;align-items:center;justify-content:center;font-size:26px}
+.login-logo h1{font-size:17px;font-weight:600;color:var(--txt)}
+.login-logo p{font-size:12px;color:var(--txt-light)}
+.login-box label{font-size:12px;color:var(--txt-mid);display:block;margin-bottom:5px;margin-top:14px}
+.login-box input{width:100%;font-size:14px;border:1px solid var(--bd);border-radius:10px;padding:10px 13px;background:var(--warm);color:var(--txt)}
+.login-box input:focus{outline:none;border-color:var(--sage-mid);background:#fff}
+.login-btn{width:100%;margin-top:22px;padding:11px;border-radius:10px;border:none;background:var(--sage-deep);color:#fff;font-size:14px;font-weight:500;cursor:pointer;transition:.15s}
+.login-btn:hover{background:#3d6849}
+.login-btn:disabled{opacity:.6;cursor:default}
+.login-error{margin-top:12px;font-size:12.5px;color:var(--blush-deep);background:var(--blush);border:1px solid var(--blush-mid);border-radius:10px;padding:8px 12px;display:none}
+.login-hint{margin-top:18px;font-size:11px;color:var(--txt-light);text-align:center;line-height:1.6}
+
+/* ---------- APP SHELL ---------- */
+#app{display:none;flex-direction:column;min-height:100vh}
+.topbar{background:var(--warm);border-bottom:1px solid var(--bd);padding:13px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.logo{font-size:14px;font-weight:600;color:var(--sage-deep);display:flex;align-items:center;gap:8px}
+.who{display:flex;align-items:center;gap:12px}
+.who-name{font-size:12.5px;color:var(--txt-mid)}
+.who-role{font-size:10.5px;background:var(--sage);color:var(--sage-deep);padding:2px 9px;border-radius:20px;font-weight:500}
+.logout-btn{font-size:12px;padding:6px 13px;border-radius:10px;border:1px solid var(--bd);background:#fff;color:var(--txt-mid);cursor:pointer}
+.logout-btn:hover{background:var(--warm)}
+.main{display:flex;flex:1;min-height:0}
+.sidebar{width:196px;background:var(--warm);border-right:1px solid var(--bd);padding:10px 0;flex-shrink:0}
+.nav{padding:9px 16px;font-size:13px;cursor:pointer;color:var(--txt-mid);border-left:3px solid transparent;margin:1px 0;transition:.12s}
+.nav:hover,.nav.on{background:var(--sage);color:var(--sage-deep)}
+.nav.on{border-left-color:var(--sage-deep);font-weight:500}
+.content{flex:1;padding:24px;overflow:auto;min-width:0}
+
+/* ---------- RESPONSIVE / MOBILE ---------- */
+@media (max-width:760px){
+  .topbar{padding:11px 14px}
+  .logo{font-size:13px}
+  .who{gap:8px;flex-wrap:wrap}
+  .who-name{display:none}
+  .main{flex-direction:column}
+  .sidebar{width:100%;display:flex;overflow-x:auto;padding:6px 8px;gap:4px;border-right:none;border-bottom:1px solid var(--bd);-webkit-overflow-scrolling:touch}
+  .nav{flex:0 0 auto;white-space:nowrap;border-left:none;border-bottom:3px solid transparent;border-radius:10px 10px 0 0;padding:8px 14px}
+  .nav.on{border-left-color:transparent;border-bottom-color:var(--sage-deep)}
+  .content{padding:14px}
+  .stitle{font-size:15px}
+  .card{padding:14px;border-radius:12px}
+  .form-row{grid-template-columns:1fr;gap:10px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  table{font-size:11.5px}
+  th,td{padding:7px 6px}
+  .period-sel{flex-direction:column}
+  .actions{justify-content:stretch}
+  .actions .btn{flex:1}
+  .login-box{padding:30px 24px}
+}
+@media (max-width:420px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .who-role{font-size:10px;padding:2px 7px}
+  table{display:block;overflow-x:auto;white-space:nowrap}
+}
+.stitle{font-size:16px;font-weight:600;margin-bottom:16px}
+.card{background:#fff;border:1px solid var(--bd-soft);border-radius:var(--r);padding:18px;margin-bottom:12px}
+.card-t{font-size:13px;font-weight:500;color:var(--txt-mid);margin-bottom:14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:14px}
+.stat{background:var(--warm);border-radius:var(--r);padding:14px;text-align:center;border:1px solid var(--bd-soft)}
+.stat-n{font-size:22px;font-weight:600;color:var(--sage-deep)}
+.stat-l{font-size:11px;color:var(--txt-light);margin-top:3px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{padding:9px 10px;font-weight:500;font-size:11px;color:var(--txt-light);border-bottom:1px solid var(--bd-soft);background:var(--warm);text-align:left}
+td{padding:9px 10px;border-bottom:1px solid var(--bd-soft);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.badge{display:inline-block;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500}
+.badge.pending{background:var(--amb);color:var(--amb-deep);border:1px solid var(--amb-mid)}
+.badge.approved{background:var(--grn);color:var(--grn-deep);border:1px solid var(--grn-mid)}
+.badge.rejected{background:var(--blush);color:var(--blush-deep);border:1px solid var(--blush-mid)}
+.btn{font-size:12px;padding:7px 14px;border-radius:10px;border:1px solid var(--bd);background:#fff;color:var(--txt-mid);cursor:pointer;transition:.12s}
+.btn:hover{background:var(--warm)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.primary{background:var(--sage);color:var(--sage-deep);border-color:var(--sage-mid)}
+.btn.soft-red{background:var(--blush);color:var(--blush-deep);border-color:var(--blush-mid)}
+label{font-size:12px;color:var(--txt-mid);display:block;margin-bottom:4px}
+input,select,textarea{width:100%;font-size:12.5px;border:1px solid var(--bd);border-radius:10px;padding:8px 12px;background:var(--warm);color:var(--txt)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--sage-mid);background:#fff}
+textarea{height:60px;resize:vertical}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px}
+.form-row.full{grid-template-columns:1fr}
+.actions{display:flex;gap:7px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+.tip{background:var(--sage);border:1px solid var(--sage-mid);border-radius:var(--r);padding:10px 14px;font-size:12.5px;color:var(--sage-deep);margin-bottom:14px}
+.qbar{background:var(--warm);border-radius:6px;height:7px;overflow:hidden;margin-top:6px;border:1px solid var(--bd-soft)}
+.qfill{height:100%;border-radius:6px;background:var(--sage-deep)}
+.qfill.warn{background:var(--amb-deep)}
+.qfill.over{background:var(--blush-deep)}
+.hd-toggle{display:flex;border-radius:10px;overflow:hidden;border:1px solid var(--bd);width:fit-content;margin-bottom:12px}
+.hd-opt{padding:7px 18px;font-size:12.5px;cursor:pointer;color:var(--txt-mid);background:#fff;border:none}
+.hd-opt.on{background:var(--sage);color:var(--sage-deep);font-weight:500}
+.hd-opt:first-child{border-right:1px solid var(--bd)}
+.period-sel{display:flex;gap:8px;margin-top:6px}
+.period-btn{padding:6px 16px;font-size:12px;border-radius:20px;border:1px solid var(--bd);background:#fff;color:var(--txt-mid);cursor:pointer}
+.period-btn.on{background:var(--amb);color:var(--amb-deep);border-color:var(--amb-mid);font-weight:500}
+.days-chip{display:inline-block;background:var(--sage);color:var(--sage-deep);border:1px solid var(--sage-mid);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:500;margin-top:8px}
+.empty{text-align:center;color:var(--txt-light);padding:32px;font-size:13px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--txt);color:#fff;padding:11px 22px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:999}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+.spinner{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-row{text-align:center;color:var(--txt-light);padding:24px;font-size:12.5px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="icon">🍃</div>
+      <h1>ระบบวันลาราชการไทย</h1>
+      <p>เข้าสู่ระบบเพื่อจัดการคำขอลา</p>
+    </div>
+    <label>ชื่อผู้ใช้</label>
+    <input id="login-user" placeholder="username" autocomplete="username">
+    <label>รหัสผ่าน</label>
+    <input id="login-pass" type="password" placeholder="••••••" autocomplete="current-password">
+    <button class="login-btn" id="login-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-hint">เชื่อมต่อกับ Google Sheets ของหน่วยงานคุณโดยตรง<br>ข้อมูลผู้ใช้กำหนดไว้ในแท็บ Users</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="logo">🍃 ระบบวันลาราชการไทย</div>
+    <div class="who">
+      <span class="who-name" id="who-name"></span>
+      <span class="who-role" id="who-role"></span>
+      <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
+    </div>
+  </div>
+  <div class="main">
+    <div class="sidebar" id="sidebar"></div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ====================== CONFIG ====================== */
+// วาง Web app URL ของคุณตรงนี้ (ได้จากขั้นตอน Deploy ใน Google Apps Script)
+const API_URL = "https://script.google.com/macros/s/AKfycby_kCCD0ZV3dsKM7knXIGpBcUfx7YONi_vn3v_TmtDn3eprUOJZG8xLo8acvce5gX1wdg/exec";
+/* ====================================================== */
+
+let currentUser = null;
+let leaveTypes = [];
+let allRequests = [];
+let leaveMode = 'full', leavePeriod = 'morning';
+
+/* ---------- API helpers ---------- */
+async function apiGet(action, params = {}) {
+  const url = new URL(API_URL);
+  url.searchParams.set('action', action);
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  const res = await fetch(url);
+  return res.json();
+}
+async function apiPost(action, payload) {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' }, // avoids CORS preflight on Apps Script
+    body: JSON.stringify({ action, payload })
+  });
+  return res.json();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+/* ---------- Login ---------- */
+async function doLogin() {
+  const username = document.getElementById('login-user').value.trim();
+  const password = document.getElementById('login-pass').value;
+  const errBox = document.getElementById('login-error');
+  const btn = document.getElementById('login-btn');
+  errBox.style.display = 'none';
+  if (!username || !password) {
+    errBox.textContent = 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน';
+    errBox.style.display = 'block';
+    return;
+  }
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>กำลังเข้าสู่ระบบ...';
+  try {
+    const result = await apiGet('login', { username, password });
+    if (result.success) {
+      currentUser = result.user;
+      sessionStorage.setItem('leaveUser', JSON.stringify(currentUser));
+      enterApp();
+    } else {
+      errBox.textContent = result.error || 'เข้าสู่ระบบไม่สำเร็จ';
+      errBox.style.display = 'block';
+    }
+  } catch (e) {
+    errBox.textContent = 'เชื่อมต่อ API ไม่ได้ ตรวจสอบ URL หรืออินเทอร์เน็ต (' + e.message + ')';
+    errBox.style.display = 'block';
+  }
+  btn.disabled = false;
+  btn.textContent = 'เข้าสู่ระบบ';
+}
+
+function logout() {
+  sessionStorage.removeItem('leaveUser');
+  currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+}
+
+async function enterApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('who-name').textContent = currentUser.FullName + ' · ' + currentUser.Dept;
+  document.getElementById('who-role').textContent = roleLabel(currentUser.Role);
+  await Promise.all([loadLeaveTypes(), loadRequests()]);
+  buildSidebar();
+}
+
+function roleLabel(r) {
+  return { employee: 'พนักงาน', supervisor: 'หัวหน้างาน', admin: 'แอดมิน' }[r] || r;
+}
+
+/* ---------- Data loading ---------- */
+async function loadLeaveTypes() {
+  try {
+    const res = await apiGet('getLeaveTypes');
+    leaveTypes = res.success ? res.data : [];
+  } catch (e) { leaveTypes = []; }
+}
+async function loadRequests() {
+  try {
+    const res = await apiGet('getRequests');
+    allRequests = res.success ? res.data : [];
+  } catch (e) { allRequests = []; }
+}
+
+function sTh(s) { return { pending: 'รออนุมัติ', approved: 'อนุมัติแล้ว', rejected: 'ไม่อนุมัติ' }[s] || s; }
+function dFmt(d) { return Number(d) === 0.5 ? '½ วัน' : d + ' วัน'; }
+function fmtDate(v) {
+  if (!v) return '';
+  const d = new Date(v);
+  if (isNaN(d)) return v;
+  return d.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+/* ---------- Sidebar / routing ---------- */
+const menus = {
+  employee: [
+    { id: 'my-leave', label: 'ยื่นคำขอลา' },
+    { id: 'my-status', label: 'ประวัติการลา' },
+    { id: 'my-quota', label: 'โควต้าวันลา' },
+  ],
+  supervisor: [
+    { id: 'approve', label: 'อนุมัติคำขอลา' },
+    { id: 'dept-sum', label: 'สรุปภาพรวม' },
+  ],
+  admin: [
+    { id: 'all-req', label: 'คำขอทั้งหมด' },
+    { id: 'lt-manage', label: 'ประเภทการลา' },
+    { id: 'report', label: 'สรุปรายงาน' },
+  ]
+};
+function buildSidebar() {
+  const m = menus[currentUser.Role] || menus.employee;
+  document.getElementById('sidebar').innerHTML = m.map((i, x) =>
+    `<div class="nav${x === 0 ? ' on' : ''}" id="n-${i.id}" onclick="go('${i.id}')">${i.label}</div>`
+  ).join('');
+  go(m[0].id);
+}
+function go(id) {
+  document.querySelectorAll('.nav').forEach(el => el.classList.remove('on'));
+  document.getElementById('n-' + id)?.classList.add('on');
+  const fn = { 'my-leave': pLeave, 'my-status': pStatus, 'my-quota': pQuota, 'approve': pApprove, 'dept-sum': pDeptSum, 'all-req': pAllReq, 'lt-manage': pLT, 'report': pReport };
+  document.getElementById('content').innerHTML = (fn[id] || (() => ''))();
+  if (id === 'my-leave') updateLeaveMode();
+}
+
+/* ---------- Employee: submit leave ---------- */
+function pLeave() {
+  leaveMode = 'full'; leavePeriod = 'morning';
+  return `
+  <div class="stitle">ยื่นคำขอลา</div>
+  <div class="tip">สามารถลาเต็มวันหรือครึ่งวัน (เช้า/บ่าย) ได้ตามระเบียบ ก.พ.</div>
+  <div class="card">
+    <div class="card-t">แบบฟอร์มคำขอลา</div>
+    <div class="form-row">
+      <div><label>ประเภทการลา</label>
+        <select id="f-type">${leaveTypes.map(t => `<option value="${t.TypeName}">${t.TypeName} — สูงสุด ${t.MaxDays} ${t.Unit}</option>`).join('')}</select></div>
+      <div><label>อ้างอิงกฎหมาย</label><input id="f-law" readonly style="color:var(--txt-light)"></div>
+    </div>
+    <div style="margin-bottom:4px">
+      <label>รูปแบบการลา</label>
+      <div class="hd-toggle">
+        <button class="hd-opt on" id="mode-full" onclick="setMode('full')">เต็มวัน</button>
+        <button class="hd-opt" id="mode-half" onclick="setMode('half')">ครึ่งวัน</button>
+      </div>
+    </div>
+    <div id="half-section" style="display:none;margin-bottom:10px">
+      <label>เลือกช่วงเวลา</label>
+      <div class="period-sel">
+        <button class="period-btn on" id="period-morning" onclick="setPeriod('morning')">ช่วงเช้า (08:30–12:00)</button>
+        <button class="period-btn" id="period-afternoon" onclick="setPeriod('afternoon')">ช่วงบ่าย (13:00–16:30)</button>
+      </div>
+    </div>
+    <div class="form-row" id="full-section">
+      <div><label>วันที่เริ่มลา</label><input type="date" id="f-start" onchange="calcDays()"></div>
+      <div id="end-row"><label>วันที่สิ้นสุด</label><input type="date" id="f-end" onchange="calcDays()"></div>
+    </div>
+    <div style="display:${'block'}" id="half-date-row" hidden>
+      <div class="form-row"><div><label>วันที่ลา</label><input type="date" id="f-start-half"></div><div></div></div>
+    </div>
+    <span class="days-chip" id="days-chip">จำนวน: — วัน</span>
+    <div class="form-row full" style="margin-top:14px"><div><label>เหตุผล</label><textarea id="f-reason" placeholder="ระบุเหตุผลการลา..."></textarea></div></div>
+    <div class="form-row full"><div><label>เอกสารประกอบ</label><input id="f-doc" placeholder="เช่น ใบรับรองแพทย์"></div></div>
+    <div class="actions">
+      <button class="btn primary" id="submit-btn" onclick="submitLeave()">ยื่นคำขอ</button>
+    </div>
+  </div>`;
+}
+function updateLawRef() {
+  const sel = document.getElementById('f-type')?.value;
+  const t = leaveTypes.find(x => x.TypeName === sel);
+  const law = document.getElementById('f-law');
+  if (law) law.value = t ? t.LawRef + ' ระเบียบ ก.พ. ว่าด้วยการลา พ.ศ.2555' : '';
+}
+function setMode(m) {
+  leaveMode = m;
+  document.querySelectorAll('.hd-opt').forEach(el => el.classList.remove('on'));
+  document.getElementById('mode-' + m)?.classList.add('on');
+  updateLeaveMode();
+}
+function setPeriod(p) {
+  leavePeriod = p;
+  document.querySelectorAll('.period-btn').forEach(el => el.classList.remove('on'));
+  document.getElementById('period-' + p)?.classList.add('on');
+}
+function updateLeaveMode() {
+  const halfSec = document.getElementById('half-section');
+  const fullSec = document.getElementById('full-section');
+  const halfDateRow = document.getElementById('half-date-row');
+  if (!halfSec) return;
+  updateLawRef();
+  const typeSel = document.getElementById('f-type');
+  if (typeSel) typeSel.onchange = updateLawRef;
+  if (leaveMode === 'half') {
+    halfSec.style.display = 'block';
+    fullSec.style.display = 'none';
+    halfDateRow.hidden = false;
+    document.getElementById('days-chip').textContent = 'จำนวน: 0.5 วัน';
+  } else {
+    halfSec.style.display = 'none';
+    fullSec.style.display = 'grid';
+    halfDateRow.hidden = true;
+    calcDays();
+  }
+}
+function calcDays() {
+  const s = document.getElementById('f-start')?.value;
+  const e = document.getElementById('f-end')?.value;
+  const chip = document.getElementById('days-chip');
+  if (!chip || leaveMode === 'half') return;
+  if (s && e) {
+    const d1 = new Date(s), d2 = new Date(e);
+    if (d2 >= d1) {
+      let count = 0;
+      for (let d = new Date(d1); d <= d2; d.setDate(d.getDate() + 1)) {
+        const day = d.getDay();
+        if (day !== 0 && day !== 6) count++;
+      }
+      chip.textContent = 'จำนวน: ' + count + ' วัน (วันทำการ)';
+    } else { chip.textContent = 'กรุณาเลือกวันให้ถูกต้อง'; }
+  }
+}
+async function submitLeave() {
+  const type = document.getElementById('f-type').value;
+  const reason = document.getElementById('f-reason').value.trim();
+  const doc = document.getElementById('f-doc').value.trim();
+  let start, end, days, period;
+  if (leaveMode === 'half') {
+    start = end = document.getElementById('f-start-half').value;
+    days = 0.5;
+    period = leavePeriod === 'morning' ? 'ช่วงเช้า' : 'ช่วงบ่าย';
+  } else {
+    start = document.getElementById('f-start').value;
+    end = document.getElementById('f-end').value;
+    period = 'เต็มวัน';
+    if (start && end) {
+      const d1 = new Date(start), d2 = new Date(end);
+      let count = 0;
+      for (let d = new Date(d1); d <= d2; d.setDate(d.getDate() + 1)) {
+        const day = d.getDay();
+        if (day !== 0 && day !== 6) count++;
+      }
+      days = count;
+    }
+  }
+  if (!start || !end || !days || !reason) {
+    showToast('กรุณากรอกข้อมูลให้ครบถ้วน');
+    return;
+  }
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="border-color:rgba(74,124,89,.3);border-top-color:var(--sage-deep)"></span>กำลังบันทึก...';
+  try {
+    const res = await apiPost('createRequest', {
+      empName: currentUser.FullName, dept: currentUser.Dept, username: currentUser.Username,
+      leaveType: type, startDate: start, endDate: end, days, period, reason, document: doc
+    });
+    if (res.success) {
+      showToast('ยื่นคำขอลาเรียบร้อยแล้ว');
+      await loadRequests();
+      go('my-status');
+    } else {
+      showToast('เกิดข้อผิดพลาด: ' + (res.error || ''));
+    }
+  } catch (e) {
+    showToast('เชื่อมต่อ API ไม่ได้: ' + e.message);
+  }
+  btn.disabled = false;
+  btn.textContent = 'ยื่นคำขอ';
+}
+
+/* ---------- Employee: history ---------- */
+function pStatus() {
+  const mine = allRequests.filter(r => r.Username === currentUser.Username);
+  return `<div class="stitle">ประวัติการลา</div>
+  <div class="card">
+    ${mine.length === 0 ? '<div class="empty">ยังไม่มีประวัติการลา</div>' : `
+    <table><thead><tr><th>ประเภท</th><th>วันที่</th><th>จำนวน</th><th>ช่วงเวลา</th><th>เหตุผล</th><th>สถานะ</th></tr></thead>
+    <tbody>${mine.map(r => `<tr>
+      <td>${r.LeaveType}</td><td>${fmtDate(r.StartDate)}</td><td><strong>${dFmt(r.Days)}</strong></td>
+      <td>${r.Period}</td><td>${r.Reason}</td>
+      <td><span class="badge ${r.Status}">${sTh(r.Status)}</span></td>
+    </tr>`).join('')}</tbody></table>`}
+  </div>`;
+}
+
+/* ---------- Employee: quota ---------- */
+function pQuota() {
+  const mine = allRequests.filter(r => r.Username === currentUser.Username && r.Status === 'approved');
+  return `<div class="stitle">โควต้าวันลาคงเหลือ</div>
+  ${leaveTypes.map(t => {
+    const used = mine.filter(r => r.LeaveType === t.TypeName).reduce((a, r) => a + Number(r.Days), 0);
+    const q = Number(t.MaxDays);
+    const pct = Math.min(100, Math.round(used / q * 100));
+    const cls = pct > 80 ? 'over' : pct > 60 ? 'warn' : '';
+    return `<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-size:13px;font-weight:500">${t.TypeName}</span>
+        <span style="font-size:11px;color:var(--txt-light)">${t.LawRef} ระเบียบฯ 2555</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--txt-mid);margin-bottom:6px">
+        <span>ใช้ไปแล้ว ${used} วัน</span><span>คงเหลือ <strong style="color:var(--sage-deep)">${q - used}</strong> / ${q} วัน</span>
+      </div>
+      <div class="qbar"><div class="qfill ${cls}" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('')}`;
+}
+
+/* ---------- Supervisor: approve ---------- */
+function pApprove() {
+  const pend = allRequests.filter(r => r.Status === 'pending');
+  return `<div class="stitle">รออนุมัติ (${pend.length} รายการ)</div>
+  ${pend.length === 0 ? '<div class="card empty">ไม่มีคำขอที่รออนุมัติ</div>' :
+    pend.map(r => `<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <div><div style="font-weight:500;font-size:13px">${r.EmpName}</div><div style="font-size:11px;color:var(--txt-light)">${r.Dept}</div></div>
+        <span class="badge pending">รออนุมัติ</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;background:var(--warm);border-radius:10px;padding:10px;margin-bottom:12px">
+        <div><span style="color:var(--txt-light)">ประเภท</span><br><strong>${r.LeaveType}</strong></div>
+        <div><span style="color:var(--txt-light)">จำนวน</span><br><strong>${dFmt(r.Days)}</strong> <span style="font-size:11px">(${r.Period})</span></div>
+        <div><span style="color:var(--txt-light)">วันที่</span><br>${fmtDate(r.StartDate)}${r.StartDate !== r.EndDate ? ' – ' + fmtDate(r.EndDate) : ''}</div>
+        <div><span style="color:var(--txt-light)">เหตุผล</span><br>${r.Reason}</div>
+      </div>
+      <div class="actions">
+        <button class="btn soft-red" onclick="changeStatus(${r.ID},'rejected')">ไม่อนุมัติ</button>
+        <button class="btn primary" onclick="changeStatus(${r.ID},'approved')">อนุมัติ</button>
+      </div>
+    </div>`).join('')}`;
+}
+async function changeStatus(id, status) {
+  showToast('กำลังบันทึก...');
+  try {
+    const res = await apiPost('updateStatus', { id, status, approvedBy: currentUser.FullName });
+    if (res.success) {
+      showToast(status === 'approved' ? 'อนุมัติคำขอแล้ว' : 'ปฏิเสธคำขอแล้ว');
+      await loadRequests();
+      go('approve');
+    } else {
+      showToast('เกิดข้อผิดพลาด: ' + (res.error || ''));
+    }
+  } catch (e) { showToast('เชื่อมต่อ API ไม่ได้: ' + e.message); }
+}
+
+/* ---------- Supervisor: dept summary ---------- */
+function pDeptSum() {
+  const rs = allRequests.filter(r => r.Dept === currentUser.Dept);
+  const tot = rs.length, apv = rs.filter(r => r.Status === 'approved').length;
+  const pen = rs.filter(r => r.Status === 'pending').length, rej = rs.filter(r => r.Status === 'rejected').length;
+  const days = rs.filter(r => r.Status === 'approved').reduce((a, r) => a + Number(r.Days), 0);
+  return `<div class="stitle">สรุปภาพรวมแผนก: ${currentUser.Dept}</div>
+  <div class="stats">
+    <div class="stat"><div class="stat-n">${tot}</div><div class="stat-l">คำขอทั้งหมด</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--grn-deep)">${apv}</div><div class="stat-l">อนุมัติแล้ว</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--amb-deep)">${pen}</div><div class="stat-l">รออนุมัติ</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--blush-deep)">${rej}</div><div class="stat-l">ไม่อนุมัติ</div></div>
+    <div class="stat"><div class="stat-n">${days}</div><div class="stat-l">รวมวันลา</div></div>
+  </div>
+  <div class="card"><div class="card-t">รายการทั้งหมดของแผนก</div>
+  ${rs.length === 0 ? '<div class="empty">ยังไม่มีคำขอ</div>' : `
+  <table><thead><tr><th>พนักงาน</th><th>ประเภท</th><th>จำนวน</th><th>สถานะ</th></tr></thead>
+  <tbody>${rs.map(r => `<tr><td>${r.EmpName}</td><td>${r.LeaveType}</td><td>${dFmt(r.Days)}</td><td><span class="badge ${r.Status}">${sTh(r.Status)}</span></td></tr>`).join('')}</tbody></table>`}
+  </div>`;
+}
+
+/* ---------- Admin: all requests ---------- */
+function pAllReq() {
+  return `<div class="stitle">คำขอลาทั้งหมด</div>
+  <div class="card">
+    ${allRequests.length === 0 ? '<div class="empty">ยังไม่มีคำขอในระบบ</div>' : `
+    <table><thead><tr><th>พนักงาน</th><th>แผนก</th><th>ประเภท</th><th>วันที่</th><th>จำนวน</th><th>สถานะ</th></tr></thead>
+    <tbody>${allRequests.map(r => `<tr>
+      <td>${r.EmpName}</td><td>${r.Dept}</td><td>${r.LeaveType}</td>
+      <td>${fmtDate(r.StartDate)}</td><td>${dFmt(r.Days)}</td>
+      <td><span class="badge ${r.Status}">${sTh(r.Status)}</span></td>
+    </tr>`).join('')}</tbody></table>`}
+  </div>`;
+}
+
+/* ---------- Admin: leave types ---------- */
+function pLT() {
+  return `<div class="stitle">ประเภทการลาตามระเบียบราชการ</div>
+  <div class="card"><table>
+    <thead><tr><th>ประเภทการลา</th><th>สิทธิ์สูงสุด</th><th>อ้างอิง</th></tr></thead>
+    <tbody>${leaveTypes.map(t => `<tr>
+      <td style="font-weight:500">${t.TypeName}</td><td>${t.MaxDays} ${t.Unit}</td>
+      <td style="color:var(--txt-light);font-size:11px">${t.LawRef} ระเบียบ ก.พ. 2555</td>
+    </tr>`).join('')}</tbody>
+  </table></div>
+  <div class="tip">แก้ไขประเภทการลาหรือโควต้าได้โดยตรงในแท็บ <strong>LeaveTypes</strong> ของ Google Sheet</div>`;
+}
+
+/* ---------- Admin: report ---------- */
+function pReport() {
+  const tot = allRequests.length, apv = allRequests.filter(r => r.Status === 'approved').length;
+  const days = allRequests.filter(r => r.Status === 'approved').reduce((a, r) => a + Number(r.Days), 0);
+  return `<div class="stitle">สรุปรายงานระบบ</div>
+  <div class="stats">
+    <div class="stat"><div class="stat-n">${tot}</div><div class="stat-l">คำขอทั้งหมด</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--grn-deep)">${apv}</div><div class="stat-l">อนุมัติแล้ว</div></div>
+    <div class="stat"><div class="stat-n">${days}</div><div class="stat-l">รวมวันลา</div></div>
+    <div class="stat"><div class="stat-n">${tot ? Math.round(apv / tot * 100) : 0}%</div><div class="stat-l">อัตราอนุมัติ</div></div>
+  </div>
+  <div class="card"><div class="card-t">สรุปตามประเภทการลา</div>
+  <table><thead><tr><th>ประเภทการลา</th><th>คำขอ</th><th>อนุมัติ</th><th>รวมวัน</th></tr></thead>
+  <tbody>${leaveTypes.map(t => {
+    const rs = allRequests.filter(r => r.LeaveType === t.TypeName);
+    const apvd = rs.filter(r => r.Status === 'approved');
+    return `<tr><td>${t.TypeName}</td><td>${rs.length}</td><td>${apvd.length}</td><td>${apvd.reduce((a, r) => a + Number(r.Days), 0)} วัน</td></tr>`;
+  }).join('')}</tbody></table></div>`;
+}
+
+/* ---------- Boot ---------- */
+document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+(function boot() {
+  const saved = sessionStorage.getItem('leaveUser');
+  if (saved) {
+    currentUser = JSON.parse(saved);
+    enterApp();
+  }
+})();
+</script>
+</body>
+</html>
