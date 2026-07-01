@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ระบบวันลาราชการไทย</title>
+<title>ระบบวันลา กองสาธารณสุข เทศบาลนครตรัง</title>
 <style>
 :root{
   --sage:#e8f0ea;--sage-mid:#b8d4bc;--sage-deep:#4a7c59;
@@ -131,8 +131,23 @@ textarea{height:60px;resize:vertical}
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo">
-      <div class="icon">🍃</div>
-      <h1>ระบบวันลาราชการไทย</h1>
+      <div class="icon" style="background:transparent;width:84px;height:84px">
+        <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" width="84" height="84">
+          <circle cx="40" cy="40" r="38" fill="#1a4f8a" stroke="#c8a820" stroke-width="3"/>
+          <circle cx="40" cy="40" r="33" fill="none" stroke="#c8a820" stroke-width="1.2"/>
+          <ellipse cx="40" cy="46" rx="9" ry="12" fill="#f5dfa0"/>
+          <circle cx="40" cy="30" r="7" fill="#f5dfa0"/>
+          <ellipse cx="25" cy="42" rx="10" ry="5" fill="#a8d8f0" opacity=".85" transform="rotate(-20 25 42)"/>
+          <ellipse cx="55" cy="42" rx="10" ry="5" fill="#a8d8f0" opacity=".85" transform="rotate(20 55 42)"/>
+          <line x1="31" y1="44" x2="22" y2="50" stroke="#f5dfa0" stroke-width="3" stroke-linecap="round"/>
+          <line x1="49" y1="44" x2="58" y2="50" stroke="#f5dfa0" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="40" cy="58" r="5" fill="#e8f4ff" stroke="#c8a820" stroke-width="1.5" opacity=".95"/>
+          <circle cx="38.5" cy="56.5" r="1.5" fill="#fff" opacity=".7"/>
+          <path d="M33 28 Q40 20 47 28" fill="#3a2010" stroke="none"/>
+          <text x="40" y="75" text-anchor="middle" font-size="5.5" fill="#c8a820" font-family="sans-serif" font-weight="bold">ทน.ตรัง</text>
+        </svg>
+      </div>
+      <h1 style="font-size:15px;text-align:center;line-height:1.6">ระบบวันลา<br>กองสาธารณสุข เทศบาลนครตรัง</h1>
       <p>เข้าสู่ระบบเพื่อจัดการคำขอลา</p>
     </div>
     <label>ชื่อผู้ใช้</label>
@@ -141,14 +156,24 @@ textarea{height:60px;resize:vertical}
     <input id="login-pass" type="password" placeholder="••••••" autocomplete="current-password">
     <button class="login-btn" id="login-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
     <div class="login-error" id="login-error"></div>
-    <div class="login-hint">เชื่อมต่อกับ Google Sheets ของหน่วยงานคุณโดยตรง<br>ข้อมูลผู้ใช้กำหนดไว้ในแท็บ Users</div>
+    <div class="login-hint">กองสาธารณสุขและสิ่งแวดล้อม เทศบาลนครตรัง<br>ข้อมูลผู้ใช้กำหนดไว้ในแท็บ Users</div>
   </div>
 </div>
 
 <!-- APP -->
 <div id="app">
   <div class="topbar">
-    <div class="logo">🍃 ระบบวันลาราชการไทย</div>
+    <div class="logo">
+      <svg viewBox="0 0 32 32" width="26" height="26" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+        <circle cx="16" cy="16" r="15" fill="#1a4f8a" stroke="#c8a820" stroke-width="1.5"/>
+        <ellipse cx="16" cy="18" rx="4" ry="5.5" fill="#f5dfa0"/>
+        <circle cx="16" cy="11" r="3.2" fill="#f5dfa0"/>
+        <ellipse cx="9" cy="17" rx="4.5" ry="2.2" fill="#a8d8f0" opacity=".85" transform="rotate(-20 9 17)"/>
+        <ellipse cx="23" cy="17" rx="4.5" ry="2.2" fill="#a8d8f0" opacity=".85" transform="rotate(20 23 17)"/>
+        <circle cx="16" cy="23.5" r="2.2" fill="#e8f4ff" stroke="#c8a820" stroke-width=".8"/>
+      </svg>
+      <span style="line-height:1.3">ระบบวันลา <span style="font-weight:400;font-size:11.5px;color:var(--txt-mid)">กองสาธารณสุข เทศบาลนครตรัง</span></span>
+    </div>
     <div class="who">
       <span class="who-name" id="who-name"></span>
       <span class="who-role" id="who-role"></span>
